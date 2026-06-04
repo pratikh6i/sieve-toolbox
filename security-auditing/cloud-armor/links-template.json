@@ -1,0 +1,10 @@
+[
+  {
+    "group_name": "Group I",
+    "links": [
+      "https://console.cloud.google.com/monitoring/dashboards/resourceDetail/network_security_policy,project_id:YOUR_HOST_VPC_PROJECT_ID,policy_name:YOUR_POLICY_NAME;startTime={START_TIME};endTime={END_TIME}?project=YOUR_HOST_VPC_PROJECT_ID&supportedpurview=project&invt=AbuSjg",
+      "https://console.cloud.google.com/net-security/securitypolicies/details/YOUR_POLICY_NAME?project=YOUR_HOST_VPC_PROJECT_ID&invt=AbuSjg&supportedpurview=project&tab=rules&pageState=(%22networkCloudArmorSecurityPolicyRulesTable%22:(%22s%22:%5B(%22i%22:%22priority%22,%22s%22:%220%22),(%22i%22:%22actionType%22,%22s%22:%221%22)%5D,%22r%22:200))",
+      "https://console.cloud.google.com/logs/query;query=resource.type:%2528http_load_balancer%2529%20AND%20jsonPayload.enforcedSecurityPolicy.name:%2528YOUR_POLICY_NAME%2529%0Aseverity%3DWARNING;storageScope=storage,projects%2FYOUR_OBSERVABILITY_PROJECT_ID%2Flocations%2Fasia-south1%2Fbuckets%2FYOUR_ARMOR_LOG_SINK_BUCKET%2Fviews%2F_AllLogs;cursorTimestamp=2025-04-09T04:30:59.919999Z;startTime={START_TIME};endTime={END_TIME}?project=YOUR_OBSERVABILITY_PROJECT_ID&invt=AbuSjg"
+    ]
+  }
+]
