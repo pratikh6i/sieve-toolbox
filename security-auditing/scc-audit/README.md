@@ -53,3 +53,25 @@ chmod +x bulk-inactivate-findings.sh
 ```bash
 python3 auto-analyze-scc-threats.py
 ```
+
+---
+
+## SCC Findings Flattener (`flatten-scc-findings.py`)
+
+### Purpose
+Reads a raw SCC JSON export (`all_findings.json`) and dynamically flattens all nested fields into a clean, wide CSV using `pandas.json_normalize`. Ideal for bulk SCC exports that need to be analyzed in Google Sheets or Excel.
+
+### Prerequisites
+```bash
+pip install pandas
+```
+
+### Usage
+```bash
+# First export findings from SCC:
+gcloud scc findings list organizations/YOUR_ORG_ID --format=json > all_findings.json
+
+# Then flatten:
+python3 flatten-scc-findings.py
+# Output: scc_all_findings_flattened.csv
+```

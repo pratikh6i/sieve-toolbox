@@ -52,3 +52,48 @@ Shell script that scans a single project's Compute instances and audits their se
 chmod +x vm-scope-auditor-single.sh
 ./vm-scope-auditor-single.sh > single_project_scope_report.csv
 ```
+
+---
+
+## 4. VM OS Licensing Auditor (`audit-vm-os-licensing.sh`)
+
+### Purpose
+Parallelized, org-aware scanner that inventories all Compute Engine instances across an entire GCP organization and detects their OS type (Windows Server, RHEL, Ubuntu, Debian, CentOS, SUSE, or Linux/Other) using license and disk image metadata. Useful for Windows licensing audits and OS-specific compliance checks.
+
+### Prerequisites
+- `gcloud` CLI authenticated with org-level access.
+- `jq` installed.
+- IAM: `roles/compute.viewer` on all scanned projects.
+
+### Usage
+```bash
+chmod +x audit-vm-os-licensing.sh
+./audit-vm-os-licensing.sh > windows_report.csv
+# Prompted interactively for your GCP Organization ID.
+```
+
+**Output columns**: Project ID, Instance Name, Zone, Status, Is Windows?, Detected OS Family
+
+---
+
+## 5. VM Security Profile Auditor (`audit-vm-security-profile.sh`)
+
+### Purpose
+Interactive script that audits Shielded VM configuration (Secure Boot, vTPM, Integrity Monitoring), API scopes, public IPs, OS Config agent, Confidential Compute, and serial port access. Generates actionable security recommendations per instance.
+
+### Target Variables
+- **PROJECT_IDS_LIST**: Edit the array in the script with your actual GCP project IDs.
+
+### Prerequisites
+- `gcloud` CLI authenticated.
+- `jq` installed.
+- IAM: `roles/compute.viewer` and `roles/serviceusage.serviceUsageViewer` on target projects.
+
+### Usage
+```bash
+chmod +x audit-vm-security-profile.sh
+./audit-vm-security-profile.sh > vm_security_report.csv
+# Interactive: choose to scan all pre-defined projects or enter a single custom project.
+```
+
+**Output columns**: Project ID, Instance Name, Zone, Service Account, Has Public IP, Public IP Address, API Scopes, OS Config, Confidential Compute, Secure Boot, vTPM, Integrity Monitoring, Serial Port, Patch Manager Status, Recommendation

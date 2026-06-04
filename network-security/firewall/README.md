@@ -28,3 +28,37 @@ chmod +x disable-icmp-project.sh && ./disable-icmp-project.sh
 ```bash
 chmod +x disable-icmp-organization.sh && ./disable-icmp-organization.sh
 ```
+
+---
+
+## Firewall Rule Assessment Report (`generate-firewall-report.py`)
+
+### Purpose
+Generates a comprehensive CSV report of all VPC firewall rules in a project, correlating each rule to the VM instances it applies to (by network tags or service accounts) and including each instance's public IP address.
+
+### Prerequisites
+- Python 3
+- `gcloud` CLI authenticated
+- IAM: `roles/compute.viewer` on the target project
+
+### Usage
+```bash
+python3 generate-firewall-report.py --project YOUR_PROJECT_ID
+# Output: YOUR_PROJECT_ID_firewall_assessment_v3.csv
+```
+
+### Output Columns
+
+| Column | Description |
+|--------|-------------|
+| Project_ID | GCP project identifier |
+| Firewall_Rule_Name | Name of the firewall rule |
+| Is_Disabled | `True`/`False` |
+| Network_VPC | VPC network the rule belongs to |
+| Direction | `INGRESS` or `EGRESS` |
+| Priority | Rule priority (lower = higher priority) |
+| Source_Ranges | CIDR source ranges (e.g., `0.0.0.0/0`) |
+| Allowed_Protocols_Ports | e.g., `tcp:22`, `icmp` |
+| Target_Tags | Network tags the rule applies to |
+| Target_Service_Accounts | Service accounts the rule applies to |
+| Attached_VMs (Name:PublicIP) | VM instances matched by the rule and their public IPs |
