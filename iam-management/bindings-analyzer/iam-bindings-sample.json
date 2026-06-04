@@ -1,0 +1,26 @@
+[
+  [
+    {
+      "action": "REMOVE",
+      "role": "roles/cloudasset.viewer",
+      "member": "serviceAccount:datacat@YOUR_PROJECT_ID.iam.gserviceaccount.com"
+    },
+    {
+      "action": "REMOVE",
+      "role": "roles/editor",
+      "member": "serviceAccount:YOUR_PROJECT_NUMBER-compute@developer.gserviceaccount.com"
+    }
+  ],
+  [
+    {
+      "action": "REMOVE",
+      "role": "roles/viewer",
+      "member": "user:it.support@YOUR_DOMAIN.com"
+    },
+    {
+      "action": "REMOVE",
+      "role": "roles/storage.objectAdmin",
+      "member": "serviceAccount:service-account-name-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com"
+    }
+  ]
+]

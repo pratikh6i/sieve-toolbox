@@ -1,0 +1,38 @@
+[
+  [
+    {
+      "action": "REMOVE",
+      "role": "roles/viewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    },
+    {
+      "action": "ADD",
+      "role": "organizations/YOUR_ORGANIZATION_ID/roles/custom.viewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    }
+  ],
+  [
+    {
+      "action": "REMOVE",
+      "role": "roles/viewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    },
+    {
+      "action": "ADD",
+      "role": "roles/integrations.certificateViewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    }
+  ],
+  [
+    {
+      "action": "REMOVE",
+      "role": "roles/viewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    },
+    {
+      "action": "ADD",
+      "role": "roles/integrations.certificateViewer",
+      "member": "group:iam-group@YOUR_DOMAIN.com"
+    }
+  ]
+]
