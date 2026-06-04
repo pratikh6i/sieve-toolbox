@@ -1,49 +1,93 @@
 # Cloud Armor Security Automations
 
-This folder contains scripts and utilities to manage, analyze, and configure Google Cloud Armor security policies.
+A comprehensive suite of tools to manage, analyze, monitor, and provision Google Cloud Armor security policies.
 
 ---
 
-## 1. Cloud Armor Adaptive Protection Enablement
-
-### Purpose
-This script automates enabling Adaptive Protection (Layer 7 DDoS Defense) across all Cloud Armor security policies in a specified GCP project. It scans for existing policies, checks if Adaptive Protection is active, and enables it if it is currently disabled.
-
-### Target Variables to Change
-None. The script prompts interactively for:
-*   `Google Cloud Project ID`
-
-### Prerequisites
-*   **CLI Tools**: `gcloud` SDK installed and authenticated.
-*   **IAM Roles**: `Compute Security Admin` or `Compute Admin` role on the target project.
-
-### Usage
-```bash
-chmod +x enable-adaptive-protection.sh && ./enable-adaptive-protection.sh
-```
+## 1. Cloud Armor Adaptive Protection Enablement (`enable-adaptive-protection.sh`)
+- **Purpose**: Automates enabling Layer 7 DDoS Defense across all policies in a specified project.
+- **Usage**:
+  ```bash
+  chmod +x enable-adaptive-protection.sh && ./enable-adaptive-protection.sh
+  ```
 
 ---
 
-## 2. GCP Log Link Opener for Cloud Armor
+## 2. GCP Log Link Opener (`open-gcp-log-links.py` / `links-template.json`)
+- **Purpose**: Converts local IST times to UTC and automatically opens Chrome tabs for WAF logs and monitoring dashboards.
+- **Usage**:
+  ```bash
+  python3 open-gcp-log-links.py
+  ```
 
-### Purpose
-This utility automates opening multiple Google Cloud Console log and dashboard links for Cloud Armor analysis within a designated time window. The script converts local Indian Standard Time (IST) inputs to UTC, injects these times into the URL templates defined in `links-template.json`, and opens the links in your work Chrome browser window.
+---
 
-### Target Variables to Change
-*   **In `links-template.json`**: Replace the following placeholders with your actual GCP configuration details:
-    *   `YOUR_HOST_VPC_PROJECT_ID`: The project ID of your Host VPC (e.g., `inf-nw-ngfw-hostvpc-040823`).
-    *   `YOUR_OBSERVABILITY_PROJECT_ID`: The project ID containing your observability bucket (e.g., `inf-obsr-sre-040823`).
-    *   `YOUR_POLICY_NAME`: The Cloud Armor security policy name (e.g., `aeldm-prod-common-cloud-armor-policy-01`).
-    *   `YOUR_ARMOR_LOG_SINK_BUCKET`: The destination logging bucket name.
-*   **In `open-gcp-log-links.py`**:
-    *   `CHROME_BROWSER_PATH`: Browser executable alias/path. Set to `'chrome'` by default.
+## 3. Cloud Armor Preview Rule Analyzer (`audit-preview-rules.py`)
+- **Purpose**: High-throughput read-only tool that inventories WAF policies and their preview rules, queries logs in daily chunks to bypass query timeout limits, maps triggers to OWASP signature descriptions, and exports results.
+- **Prerequisites**:
+  ```bash
+  pip install google-cloud-compute google-cloud-logging tqdm
+  ```
+- **Usage**:
+  ```bash
+  python3 audit-preview-rules.py -f projects.txt -o report.csv
+  ```
 
-### Prerequisites
-*   **Environment**: Python 3.x installed.
-*   **Browser**: Google Chrome installed and running with your active GCP work profile window selected.
-*   **Network Access**: Authenticated access to the relevant GCP consoles.
+---
 
-### Usage
-```bash
-python3 open-gcp-log-links.py
-```
+## 4. Policy Metadata Collector (`collect-policy-metadata.py`)
+- **Purpose**: Parallelized multithreaded script that gathers policies, rules, and backend attachments across a project list.
+- **Usage**:
+  ```bash
+  python3 collect-policy-metadata.py -f projects.txt --threads 10
+  ```
+
+---
+
+## 5. Apply Standard Preview WAF Policies (`apply-preview-waf-policies.sh`)
+- **Purpose**: Provisions a security policy (`std-armor-policy`) with 15 preconfigured WAF rules in preview mode across a list of projects.
+- **Usage**:
+  - Edit `PROJECTS` in `apply-preview-waf-policies.sh` and run:
+  ```bash
+  chmod +x apply-preview-waf-policies.sh
+  ./apply-preview-waf-policies.sh
+  ```
+
+---
+
+## 6. Auto-Investigate 429 Incidents (`auto-investigate-429.py`)
+- **Purpose**: Auto-investigates load balancer HTTP 429 rate limit violations, conducts WHOIS lookup on offending IPs, and posts structured alerts to a Google Chat Webhook.
+- **Prerequisites**:
+  - Requires a local rule inventory JSON file and GCP Application Default Credentials configured.
+  - Set the `GC_WEBHOOK_URL` and `RULE_INVENTORY_PATH` env variables or edit the script configuration.
+- **Usage**:
+  ```bash
+  python3 auto-investigate-429.py
+  ```
+
+---
+
+## 7. Batch 429 Log Analyzer (`analyze-429-logs.py`)
+- **Purpose**: Parses email alert logs from a CSV export, queries Cloud Logging around incident windows, enriches IPs, and groups rules.
+- **Usage**:
+  ```bash
+  python3 analyze-429-logs.py alerts_export.csv
+  ```
+
+---
+
+## 8. Monitoring Counters (`monitoring/`)
+
+### A. Preview Log Hit Counter (`monitoring/log-hit-counter.py`)
+- **Purpose**: Counts preview rule log hits by splitting the time range into daily jobs to prevent logging API timeouts.
+- **Usage**:
+  ```bash
+  python3 monitoring/log-hit-counter.py
+  ```
+
+### B. Metrics Hit Counter (`monitoring/monitoring-hit-counter.py`)
+- **Purpose**: Quick-checks the total aggregated evaluated counts for a preview rule over the last 30 days using the Monitoring API.
+- **Usage**:
+  ```bash
+  python3 monitoring/monitoring-hit-counter.py
+  ```
