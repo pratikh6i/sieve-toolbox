@@ -40,3 +40,37 @@ During execution, the script will:
 2. Ask if you want to temporarily append any additional comma-separated GCP Project IDs.
 3. List the live GKE cluster topology found.
 4. Prompt you to confirm (`Y/y`) before initiating deep upgrade log extraction.
+
+---
+
+## GKE Control Plane IP Lister (`list-gke-control-plane-ips.sh`)
+
+### Purpose
+Lists the public IP addresses of GKE cluster control planes (master endpoints) across a set of projects. Outputs per-project CSV files.
+
+### Usage
+```bash
+chmod +x list-gke-control-plane-ips.sh
+./list-gke-control-plane-ips.sh
+# Output: YOUR_PROJECT_ID_gke_control_planes.csv per project
+```
+
+### Configuration
+Edit `PROJECT_LIST` at the top of the script with your actual project IDs.
+
+---
+
+## GKE Node External IP Lister (`list-gke-node-ips.sh`)
+
+### Purpose
+Lists the external IP addresses of all GKE worker nodes across a set of projects. Useful for firewall rule reviews, allowlist management, and network exposure assessments.
+
+### Usage
+```bash
+chmod +x list-gke-node-ips.sh
+./list-gke-node-ips.sh
+# Output: YOUR_PROJECT_ID_gke_nodes.csv per project
+```
+
+### Configuration
+Edit `PROJECT_LIST` at the top of the script with your actual project IDs.

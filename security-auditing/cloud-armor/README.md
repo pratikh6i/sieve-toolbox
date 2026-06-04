@@ -89,5 +89,28 @@ A comprehensive suite of tools to manage, analyze, monitor, and provision Google
 - **Purpose**: Quick-checks the total aggregated evaluated counts for a preview rule over the last 30 days using the Monitoring API.
 - **Usage**:
   ```bash
-  python3 monitoring/monitoring-hit-counter.py
+python3 monitoring/monitoring-hit-counter.py
+  ```
+
+---
+
+## Multi-Project Cloud Armor Scanner (`multi-project-ca-scanner.sh`)
+
+- **Purpose**: Shell script that audits Cloud Armor policy rules across multiple projects in a single run. Lists all security policies, their rules, actions (allow/deny/redirect), priorities, and target backends.
+- **Configuration**: Edit `PROJECT_LIST` at the top of the script with your project IDs.
+- **Usage**:
+  ```bash
+  chmod +x multi-project-ca-scanner.sh
+  ./multi-project-ca-scanner.sh > ca_policy_report.csv
+  ```
+
+---
+
+## GCP Security Audit (`gcp-security-audit.py`)
+
+- **Purpose**: Standalone Python script that audits Cloud Armor policies within a project, focusing on WAF rule validation, rule ordering issues, and preview vs. enforcement mode mismatches. Outputs findings in a structured CSV.
+- **Usage**:
+  ```bash
+  python3 gcp-security-audit.py
+  # Prompted for Project ID
   ```

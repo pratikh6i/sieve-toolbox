@@ -75,3 +75,38 @@ chmod +x harden-ssl-policy.sh
 chmod +x map-ssl-policies-to-proxies.sh
 ./map-ssl-policies-to-proxies.sh
 ```
+
+---
+
+## SSL Policy Lister (`list-ssl-policies.sh`)
+
+### Purpose
+Lists all SSL policies across a set of projects in a quick CSV format. Simpler than `describe-ssl-policies.sh` — designed for fast multi-project inventory snapshots.
+
+### Configuration
+Edit `PROJECTS_TO_SCAN` at the top of the script:
+```bash
+PROJECTS_TO_SCAN=("your-project-id-1" "your-project-id-2")
+```
+
+### Usage
+```bash
+chmod +x list-ssl-policies.sh
+./list-ssl-policies.sh
+```
+
+---
+
+## Updated SSL Policies Reporter (`updated-ssl-policies.sh`)
+
+### Purpose
+An enhanced version of the SSL policy lister that also checks which target HTTPS/SSL proxies are referencing each policy, providing a more complete compliance picture in a single pass.
+
+### Configuration
+Edit `PROJECTS_TO_SCAN` at the top of the script.
+
+### Usage
+```bash
+chmod +x updated-ssl-policies.sh
+./updated-ssl-policies.sh
+```

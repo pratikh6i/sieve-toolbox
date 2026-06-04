@@ -67,3 +67,15 @@ PROJECT_IDS=(
   "your-project-id-2"
 )
 ```
+
+---
+
+## 3. `gcp-flow-logs-check-v2.sh` — VPC Flow Logs Checker (Updated)
+
+An updated version of the flow logs checker with improved output formatting and additional subnet metadata. Use this in preference to `gcp-flow-logs-check.sh` for newer assessments.
+
+### Usage
+```bash
+chmod +x gcp-flow-logs-check-v2.sh
+./gcp-flow-logs-check-v2.sh > flow_logs_report_v2.csv
+```

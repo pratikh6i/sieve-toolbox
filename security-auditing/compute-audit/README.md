@@ -97,3 +97,68 @@ chmod +x audit-vm-security-profile.sh
 ```
 
 **Output columns**: Project ID, Instance Name, Zone, Service Account, Has Public IP, Public IP Address, API Scopes, OS Config, Confidential Compute, Secure Boot, vTPM, Integrity Monitoring, Serial Port, Patch Manager Status, Recommendation
+
+---
+
+## 6. Read-Only Compute Audit (`read-only-compute-audit.py`)
+
+### Purpose
+Python script for a comprehensive, read-only audit of all Compute Engine instances across a project. Covers machine type, boot disk, public IP, service account, deletion protection, and metadata. Suitable for an initial baseline assessment of VM configurations.
+
+### Usage
+```bash
+python3 read-only-compute-audit.py
+# Prompted for Project ID
+# Output: CSV to stdout or file
+```
+
+---
+
+## 7. Compute Audit Apr 2026 (`compute-audit-apr2026.py`)
+
+### Purpose
+Updated version of the read-only compute auditor with additional fields and logic introduced in April 2026 (including enhanced Shielded VM checks and improved scope analysis).
+
+### Usage
+```bash
+python3 compute-audit-apr2026.py
+```
+
+---
+
+## 8. API Scope Lister (`list-api-scopes.sh`)
+
+### Purpose
+Quickly lists all Compute Engine instances in a project along with their service account and API scope configuration. Useful as a lightweight, fast alternative to the full VM security auditors.
+
+### Usage
+```bash
+chmod +x list-api-scopes.sh
+./list-api-scopes.sh
+```
+
+---
+
+## 9. GCP Compute Audit (`gcp-compute-audit.sh`)
+
+### Purpose
+A shell-based compute inventory script covering instance name, zone, machine type, status, external IP, and OS disk. Designed for quick multi-project snapshots.
+
+### Usage
+```bash
+chmod +x gcp-compute-audit.sh
+./gcp-compute-audit.sh
+```
+
+---
+
+## 10. Serial Port Crawler (`serial-port-crawl.sh`)
+
+### Purpose
+Scans all Compute Engine instances across specified projects to identify those with **serial port access enabled** — a potential security risk that allows low-level access to the VM console.
+
+### Usage
+```bash
+chmod +x serial-port-crawl.sh
+./serial-port-crawl.sh
+```

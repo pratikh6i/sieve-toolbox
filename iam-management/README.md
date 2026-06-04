@@ -39,3 +39,17 @@ Audits a Google Cloud project to map assigned roles to service accounts, compare
 ```bash
 python3 iam-audit-report.py
 ```
+
+---
+
+## IAM Details Lister (`list-iam-details.sh`)
+
+### Purpose
+Shell script that retrieves and displays IAM policy bindings for a project or folder/organization using `gcloud`. Exports bindings in a clean human-readable format and optionally writes to a text file. Useful as a quick read-only snapshot of IAM state.
+
+### Usage
+```bash
+chmod +x list-iam-details.sh
+./list-iam-details.sh
+# Prompted for: Project ID or Org/Folder ID, scope type, and optional output file.
+```

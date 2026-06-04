@@ -63,3 +63,18 @@ chmod +x detect-default-networks.sh
 | User VPC Peerings | User-created VPC peerings |
 | Cloud NAT | Cloud Router/NAT configurations |
 | Notes | Error messages or additional context |
+
+---
+
+## Default Network Security Assessment (`default-network-security-assessment.sh`)
+
+A simpler variant of `detect-default-networks.sh` that focuses specifically on listing which VPC networks are present per project and flagging the default network, with Compute instance and GKE resource counts. Useful as a quick initial assessment.
+
+### Usage
+```bash
+chmod +x default-network-security-assessment.sh
+./default-network-security-assessment.sh > default_network_assessment.csv
+```
+
+### Configuration
+Edit `PROJECT_IDS` at the top of the script with your project IDs.
