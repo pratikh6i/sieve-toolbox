@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body {
+        font-family: 'Google Sans', Roboto, Arial, sans-serif;
+        padding: 15px;
+        color: #333;
+        background-color: #f8f9fa;
+      }
+      .form-group {
+        margin-bottom: 18px;
+      }
+      label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #4a4a4a;
+      }
+      select {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 4px;
+        border: 1px solid #dadce0;
+        background-color: #fff;
+        font-size: 14px;
+        outline: none;
+      }
+      select:focus {
+        border-color: #1a73e8;
+      }
+      .button-wrapper {
+        margin-top: 24px;
+        text-align: right;
+      }
+      button {
+        padding: 8px 24px;
+        font-size: 14px;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-weight: 500;
+      }
+      .btn-primary {
+        background-color: #1a73e8;
+        color: white;
+      }
+      .btn-primary:hover {
+        background-color: #1557b0;
+      }
+      .btn-secondary {
+        background-color: transparent;
+        color: #5f6368;
+        margin-right: 8px;
+      }
+      .btn-secondary:hover {
+        background-color: #f1f3f4;
+      }
+    </style>
+  </head>
+  <body>
+    
+    <div class="form-group">
+      <label for="allSheet">1. Select ALL FINDINGS Sheet:</label>
+      <select id="allSheet">
+        <? for (var i = 0; i < sheetNames.length; i++) { ?>
+          <option value="<?= sheetNames[i] ?>"><?= sheetNames[i] ?></option>
+        <? } ?>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="filteredSheet">2. Select Sheet WITHOUT OS & Software Vul:</label>
+      <select id="filteredSheet">
+        <? for (var i = 0; i < sheetNames.length; i++) { ?>
+          <option value="<?= sheetNames[i] ?>"><?= sheetNames[i] ?></option>
+        <? } ?>
+      </select>
+    </div>
+
+    <div class="button-wrapper">
+      <button class="btn-secondary" onclick="google.script.host.close()">Cancel</button>
+      <button class="btn-primary" id="submitBtn" onclick="submitSelection()">Generate</button>
+    </div>
+
+    <script>
+      function submitSelection() {
+        var btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.innerText = 'Processing...';
+        
+        var allSheetVal = document.getElementById('allSheet').value;
+        var filteredSheetVal = document.getElementById('filteredSheet').value;
+        
+        // Push choices back to sever side script handling logic
+        google.script.run
+          .withSuccessHandler(function() {
+             google.script.host.close();
+          })
+          .processSheetSelections(allSheetVal, filteredSheetVal);
+      }
+    </script>
+  </body>
+</html>
