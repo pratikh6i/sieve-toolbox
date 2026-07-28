@@ -57,3 +57,9 @@ python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID -t 90d -c
 |----------|-------------|
 | `YOUR_PROJECT_ID` | Your GCP project ID (pass via `-p` flag) |
 | `YOUR_INSTANCE_ID` | Your SecOps/Chronicle instance ID (pass via `-i` flag) |
+
+---
+
+## Reference
+This script was created with the help of this Gemini chat: [Gemini Chat Reference](https://gemini.google.com/app/cb4b4dbe9a8abf91)
+
