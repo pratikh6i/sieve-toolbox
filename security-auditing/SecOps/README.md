@@ -1,4 +1,4 @@
-# SecOps Case Exporter
+# SecOps Case Exporter (v3)
 
 High-speed bulk exporter for Google SecOps (Chronicle) cases to CSV using parallel time-sliced API streams.
 
@@ -6,12 +6,15 @@ High-speed bulk exporter for Google SecOps (Chronicle) cases to CSV using parall
 
 ## Features
 
-- **Multi-stream parallel fetching** — splits the time range into concurrent workers for maximum throughput
-- **Automatic 429 retry** — exponential backoff on rate limits, zero data loss
-- **Human-readable output** — epoch timestamps → `12 July 2026, 18:32 IST`, camelCase headers → `Clean Title Case`
-- **Flexible time input** — relative (`15d`, `90d`, `24h`) or absolute (`YYYY-MM-DD`) ranges
-- **Deep custom fields** — optional per-case `customFieldValues` sub-resource fetch
-- **Deduplication** — built-in case ID dedup across overlapping slices
+- **Resume with Fast-Forward**: Automatically detects the latest watermark from an existing CSV and scans only the uncovered/new timeframe (+2h safety overlap).
+- **Gap-Aware Scanning**: Scans previously unexported older ranges if you widen the timeframe window (use `--full-rescan` to override and force a complete rescan).
+- **Multi-Stream Parallel Fetching**: Splits timeframe into concurrent workers to maximize API throughput.
+- **Automatic Rate-Limit & Token Handling**: Smart exponential backoff on `429` / `RESOURCE_EXHAUSTED` errors to prevent data loss.
+- **Crash-Safe & Checkpointed Writes**: Writes dynamically to a temp file and performs atomic renaming on completion. Periodic checkpoints ensure progress is not lost.
+- **Clean Live Dashboard**: Displays a single-line live progress bar, processing rates, ETA, and rate-limiting metrics instead of verbose terminal logs.
+- **Readable Output**: Converts epoch timestamps to `DD MMMM YYYY, HH:MM IST` and maps API camelCase keys into spaces-separated clean column headers.
+
+---
 
 ## Prerequisites
 
@@ -19,47 +22,43 @@ High-speed bulk exporter for Google SecOps (Chronicle) cases to CSV using parall
 - `gcloud` CLI authenticated (`gcloud auth login`)
 - `requests` library (auto-installed if missing)
 
+---
+
 ## Usage
 
 ```bash
-# Interactive mode — prompts for timeframe
+# New Export: Interactive wizard (prompts for timeframe if omitted)
 python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID
 
-# Export last 30 days
+# Export specific timeframe (e.g. 30 days)
 python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID -t 30d
 
-# Export a specific date range with custom output
-python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID \
-  --start 2025-01-01 --end 2025-03-31 -o q1_cases.csv
+# Resume Export (watermark fast-forward only scanning new cases)
+python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --resume existing_report.csv
 
-# Include custom field values (slower, deeper export)
-python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID -t 90d -c
+# Resume Export with complete re-scan
+python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --resume existing_report.csv --full-rescan
+
+# Export specific date range
+python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --start 2026-01-01 --end 2026-03-31 -o q1_report.csv
 ```
+
+---
 
 ## CLI Flags
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `-p`, `--project` | GCP Project ID | *(required)* |
-| `-i`, `--instance` | SecOps Customer / Instance ID | *(required)* |
+| `-p`, `--project` | GCP Project ID | *Required (or env default)* |
+| `-i`, `--instance` | SecOps Instance/Customer ID | *Required (or env default)* |
 | `-r`, `--region` | SecOps region (`us`, `eu`, `asia-south1`) | `us` |
-| `-t`, `--timeframe` | Relative time (`15d`, `90d`, `24h`) | interactive |
+| `-t`, `--timeframe` | Relative timeframe (e.g., `15d`, `90d`, `24h`) | interactive |
 | `--start` / `--end` | Absolute date range (`YYYY-MM-DD`) | — |
-| `-f`, `--filter` | Additional API filter expression | — |
 | `-o`, `--output` | Output CSV filename | auto-timestamped |
-| `-d`, `--delimiter` | CSV delimiter | `\|` |
-| `-s`, `--slices` | Parallel stream count | `6` |
-| `-c`, `--fetch-custom` | Fetch deep custom field values | off |
-
-## Variables to Change
-
-| Variable | What to set |
-|----------|-------------|
-| `YOUR_PROJECT_ID` | Your GCP project ID (pass via `-p` flag) |
-| `YOUR_INSTANCE_ID` | Your SecOps/Chronicle instance ID (pass via `-i` flag) |
-
----
-
-## Reference
-This script was created with the help of this Gemini chat: [Gemini Chat Reference](https://gemini.google.com/app/cb4b4dbe9a8abf91)
-
+| `--resume` | Resume export from an existing CSV file | — |
+| `--full-rescan` | Disable watermark fast-forward; re-scan the entire timeframe | off |
+| `-s`, `--slices` | Parallel streams for Phase 1 time-slicing | `6` |
+| `-w`, `--workers` | Parallel worker threads for Phase 2 hydration | `40` |
+| `-c`, `--fetch-custom` | Fetch deep `customFieldValues` sub-resource per case | off |
+| `--checkpoint-every` | Auto-save CSV every N hydrated cases (0 to disable) | `2000` |
+| `--no-color` | Disable ANSI terminal colors | off |

@@ -13,6 +13,9 @@ Reads finding names/IDs from a text file, checks if they are currently active, a
 ### 3. [auto-analyze-scc-threats.py](auto-analyze-scc-threats.py)
 Correlates SCC Cloud Armor threat logs. For findings in the last 30 days, it pulls a 20-minute log window from Cloud Logging around the incident, resolves WHOIS info for offending IPs, lists target URLs, HTTP methods, user agents, and status codes, and outputs an assessment CSV.
 
+### 4. [let-him-cook.py](let-him-cook.py)
+GCP Security Command Center (SCC) Executive Report Generator. Consolidates multiple SCC vulnerability CSV files into formatted 5-tab Excel reports with built-in 3D charts.
+
 ---
 
 ## Bulk Inactivate Findings (`bulk-inactivate-findings.sh`)
@@ -75,3 +78,22 @@ gcloud scc findings list organizations/YOUR_ORG_ID --format=json > all_findings.
 python3 flatten-scc-findings.py
 # Output: scc_all_findings_flattened.csv
 ```
+
+---
+
+## SCC Executive Report Generator (`let-him-cook.py`)
+
+### Prerequisites
+```bash
+pip install pandas openpyxl
+```
+
+### Usage
+```bash
+python3 let-him-cook.py
+```
+Follow the interactive prompts to:
+1. Enter the **Customer Name**.
+2. Provide **SCC export CSV paths** (wildcards like `*.csv` are supported).
+3. The tool generates styled Excel reports (`*_OS_Vulnerability_Report_*.xlsx` and `*_Software_Vulnerability_Report_*.xlsx`) featuring 3D Pie and Stacked Column charts.
+
