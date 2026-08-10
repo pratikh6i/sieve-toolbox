@@ -12,6 +12,7 @@ This repository is organized by function to ensure scalability and ease of navig
 *   **`storage/`**: Secure cloud storage configurations and access policies.
 *   **`cloud-run/`**: Serverless security scanning and container/service configuration audits.
 *   **`google-sheets-utilities/`**: Automation scripts and helpers interacting with Google Sheets for reporting and tracking.
+*   **`documents/`**: Standard Operating Procedures (SOPs), GCP best practices, and useful reference documentation.
 
 ## Operational Workflow
 
