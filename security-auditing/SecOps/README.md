@@ -1,64 +1,133 @@
-# SecOps Case Exporter (v3)
+# Google SecOps Case Management Tools
 
-High-speed bulk exporter for Google SecOps (Chronicle) cases to CSV using parallel time-sliced API streams.
-
----
-
-## Features
-
-- **Resume with Fast-Forward**: Automatically detects the latest watermark from an existing CSV and scans only the uncovered/new timeframe (+2h safety overlap).
-- **Gap-Aware Scanning**: Scans previously unexported older ranges if you widen the timeframe window (use `--full-rescan` to override and force a complete rescan).
-- **Multi-Stream Parallel Fetching**: Splits timeframe into concurrent workers to maximize API throughput.
-- **Automatic Rate-Limit & Token Handling**: Smart exponential backoff on `429` / `RESOURCE_EXHAUSTED` errors to prevent data loss.
-- **Crash-Safe & Checkpointed Writes**: Writes dynamically to a temp file and performs atomic renaming on completion. Periodic checkpoints ensure progress is not lost.
-- **Clean Live Dashboard**: Displays a single-line live progress bar, processing rates, ETA, and rate-limiting metrics instead of verbose terminal logs.
-- **Readable Output**: Converts epoch timestamps to `DD MMMM YYYY, HH:MM IST` and maps API camelCase keys into spaces-separated clean column headers.
+A collection of Python scripts for exporting, checking, bulk-closing, and reconciling Google SecOps (Chronicle) cases against GCP Security Command Center (SCC).
 
 ---
 
 ## Prerequisites
 
+All scripts require:
 - Python 3.8+
-- `gcloud` CLI authenticated (`gcloud auth login`)
-- `requests` library (auto-installed if missing)
+- `gcloud` CLI authenticated:
+  ```bash
+  gcloud auth application-default login
+  ```
+- Install dependencies:
+  ```bash
+  pip install requests google-auth pandas
+  ```
 
 ---
 
-## Usage
+## Tools
 
+### 1. [`export_secops_cases.py`](export_secops_cases.py) — Case Exporter (v3)
+Exports all SecOps cases to CSV using parallel time-sliced API streams. Supports resume with fast-forward, crash-safe writes, and a live dashboard.
+
+**Update before running:**
+```python
+# In the script (or pass via CLI flags)
+DEFAULT_PROJECT_ID  = "YOUR_PROJECT_ID"
+DEFAULT_INSTANCE_ID = "YOUR_INSTANCE_ID"
+DEFAULT_REGION      = "us"   # Change if needed
+```
+
+**Usage:**
 ```bash
-# New Export: Interactive wizard (prompts for timeframe if omitted)
+# New export — interactive wizard
 python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID
 
-# Export specific timeframe (e.g. 30 days)
+# Export last 30 days
 python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID -t 30d
 
-# Resume Export (watermark fast-forward only scanning new cases)
-python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --resume existing_report.csv
-
-# Resume Export with complete re-scan
-python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --resume existing_report.csv --full-rescan
-
-# Export specific date range
-python3 export_secops_cases.py -p YOUR_PROJECT_ID -i YOUR_INSTANCE_ID --start 2026-01-01 --end 2026-03-31 -o q1_report.csv
+# Resume from existing CSV
+python3 export_secops_cases.py --resume existing_report.csv
 ```
 
 ---
 
-## CLI Flags
+### 2. [`check_secops_cases.py`](check_secops_cases.py) — Case Status Checker
+Checks the open/closed status of a list of SecOps case IDs in parallel. Prints a summary report with counts of open, closed, and errored cases.
 
-| Flag | Description | Default |
-|------|-------------|---------|
-| `-p`, `--project` | GCP Project ID | *Required (or env default)* |
-| `-i`, `--instance` | SecOps Instance/Customer ID | *Required (or env default)* |
-| `-r`, `--region` | SecOps region (`us`, `eu`, `asia-south1`) | `us` |
-| `-t`, `--timeframe` | Relative timeframe (e.g., `15d`, `90d`, `24h`) | interactive |
-| `--start` / `--end` | Absolute date range (`YYYY-MM-DD`) | — |
-| `-o`, `--output` | Output CSV filename | auto-timestamped |
-| `--resume` | Resume export from an existing CSV file | — |
-| `--full-rescan` | Disable watermark fast-forward; re-scan the entire timeframe | off |
-| `-s`, `--slices` | Parallel streams for Phase 1 time-slicing | `6` |
-| `-w`, `--workers` | Parallel worker threads for Phase 2 hydration | `40` |
-| `-c`, `--fetch-custom` | Fetch deep `customFieldValues` sub-resource per case | off |
-| `--checkpoint-every` | Auto-save CSV every N hydrated cases (0 to disable) | `2000` |
-| `--no-color` | Disable ANSI terminal colors | off |
+**Update before running:**
+```python
+PROJECT_ID  = "YOUR_PROJECT_ID"
+INSTANCE_ID = "YOUR_INSTANCE_ID"
+LOCATION    = "us"   # Change if needed
+```
+
+**Usage:**
+```bash
+python3 check_secops_cases.py
+# Prompts: Enter Case IDs to check status (comma-separated): 101, 102, 103
+```
+
+---
+
+### 3. [`close_secops_cases.py`](close_secops_cases.py) — Bulk Case Closer
+Bulk-closes a list of SecOps case IDs in parallel batches. Falls back to individual case processing if a batch request fails.
+
+**Update before running:**
+```python
+PROJECT_ID    = "YOUR_PROJECT_ID"
+INSTANCE_ID   = "YOUR_INSTANCE_ID"
+LOCATION      = "us"            # Change if needed
+CLOSE_REASON  = "MAINTENANCE"   # Options: MAINTENANCE, FALSE_POSITIVE, etc.
+ROOT_CAUSE    = "Other"
+CLOSE_COMMENT = "Clean up activity."
+```
+
+**Usage:**
+```bash
+python3 close_secops_cases.py
+# Prompts: Enter Case IDs to close (comma-separated): 101, 102, 103
+```
+
+---
+
+### 4. [`secops_scc_scanner.py`](secops_scc_scanner.py) — SecOps vs. SCC Reconciler (Simple)
+Reads a SecOps case export CSV, queries each associated SCC finding via the SCC REST API, and generates a CSV recommending whether to close or keep each case open.
+
+Handles one SCC finding path per case. Use `process.py` if cases have multiple findings.
+
+**Input required:** SecOps case export CSV (pipe `|` delimited, from `export_secops_cases.py`)
+
+**Usage:**
+```bash
+python3 secops_scc_scanner.py
+# Prompts: Enter the path/filename of exported SecOps cases CSV: secops_export.csv
+```
+
+**Outputs:**
+- `scc_unique_findings_lookup.csv` — SCC state per finding
+- `secops_case_reconciliation_report.csv` — Close/Keep recommendation per case
+
+---
+
+### 5. [`process.py`](process.py) — SecOps vs. SCC Reconciler (Multi-Path)
+Extended version of `secops_scc_scanner.py`. Handles cases where multiple SCC findings are linked (semicolon-separated) and applies smarter close/keep decision logic.
+
+**Rule:** Case is marked `CLOSE_SECOPS_CASE` only if **all** associated SCC findings exist and are `INACTIVE`.
+
+**Input required:** SecOps case export CSV (pipe `|` delimited)
+
+**Usage:**
+```bash
+python3 process.py
+# Prompts: Enter SecOps export CSV filename: secops_export.csv
+```
+
+**Outputs:**
+- `scc_unique_findings_lookup.csv` — SCC state per unique finding path
+- `secops_case_reconciliation_report.csv` — Final case action recommendations
+
+---
+
+## Recommended Workflow
+
+```
+1. export_secops_cases.py   →  Export all open cases to CSV
+2. process.py               →  Reconcile each case against SCC findings
+3. check_secops_cases.py    →  Verify status of specific case IDs
+4. close_secops_cases.py    →  Bulk-close cases recommended for closure
+```
